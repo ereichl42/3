@@ -1,54 +1,36 @@
-from qiskit import QuantumCircuit, transpile
-from qiskit_aer import Aer
-from qiskit.visualization import array_to_latex
-from IPython.display import display, Latex
 import numpy as np
 import matplotlib.pyplot as plt
-# Define the quantum circuit
-qc = QuantumCircuit(2)
 
-# Apply CNOT0 (Control: 0, Target: 1)
-qc.cx(0, 1)
-# Apply SWAP gate
-qc.swap(0, 1)
+# Function to plot a matrix
+def plot_matrix(matrix, title):
+    fig, ax = plt.subplots()
+    cax = ax.matshow(matrix, cmap='viridis')
+    plt.title(title)
+    fig.colorbar(cax)
+    for (i, j), val in np.ndenumerate(matrix):
+        ax.text(j, i, f'{val:.2f}', ha='center', va='center', color='white')
+    plt.show()
 
-# Get the unitary matrix of the circuit
-simulator = Aer.get_backend('unitary_simulator')
-compiled_circuit = transpile(qc, simulator)
-result = simulator.run(compiled_circuit).result()
-unitary_matrix = result.get_unitary(compiled_circuit)
+# Given M3 matrix
+M3 = np.array([[0, 1, 0, 0],
+               [0, 0, 1, 0],
+               [1, 0, 0, 0],
+               [0, 0, 0, 1]])
 
-# Print pretext and display the matrix
-display(Latex("Matrix of the circuit:"))
-display(array_to_latex(unitary_matrix))
+# Compute M3^3
+M3_cubed = np.linalg.matrix_power(M3, 3)
 
-# Print the matrix in a more readable format
-print("Matrix of the circuit:")
-for row in unitary_matrix:
-    print(" ".join(f"{elem.real:.2f}{elem.imag:+.2f}j" for elem in row))
+# Identity matrix for comparison with the eye function
+identity_matrix = np.eye(4)
 
-# Plot the matrix
-# Separate the real and imaginary parts
-real_part = np.real(unitary_matrix)
-imag_part = np.imag(unitary_matrix)
+# Check if M3^3 is the identity matrix using np.allclose function, 
+# which checks if two arrays are element-wise equal, a tolerance can be applied
+is_identity = np.allclose(M3_cubed, identity_matrix)
 
-# Plotting the real part of the matrix
-plt.figure(figsize=(8, 6))
-plt.imshow(real_part, cmap='viridis', interpolation='none', aspect='auto')
-plt.colorbar(label='Real Part')
-plt.title('Real Part of Unitary Matrix')
-plt.xlabel('Column')
-plt.ylabel('Row')
-plt.show()
+# Display M3 cubed and if it is the identity matrix
+print("M3^3:")
+print(M3_cubed)
+print("M3^3 is identity:", is_identity)
 
-# Plotting the imaginary part of the matrix
-plt.figure(figsize=(8, 6))
-plt.imshow(imag_part, cmap='viridis', interpolation='none', aspect='auto')
-plt.colorbar(label='Imaginary Part')
-plt.title('Imaginary Part of Unitary Matrix')
-plt.xlabel('Column')
-plt.ylabel('Row')
-plt.show()
-
-
+#plot_matrix(M3_cubed, 'M3^3')
 
